@@ -20,9 +20,6 @@ with open(filename, "w") as f:
         codes = redisconn.smembers("codes")
 
         if len(codes) > 0:
-            print("Codes already generated")
-            print("Generate codes and compare them with the ones in the redis key 'codes'")
-
             # Get the codes from the redis key
             redis_codes = redisconn.smembers("codes")
 
@@ -30,11 +27,7 @@ with open(filename, "w") as f:
             code = generate_code()
 
             while code in redis_codes:
-                print("Code already exists - COLLISION")
-                print("Generating another code")
                 code = generate_code()
-
-            print("Code generated successfully")
 
             # Add the code to the redis key
             redisconn.sadd("codes", code)
@@ -43,13 +36,13 @@ with open(filename, "w") as f:
             f.write(code + "\n")
 
         else:
-            print("Codes not generated yet")
-            print("Generate codes and add them to the redis key 'codes'")
-
             code = generate_code()
             redisconn.sadd("codes", code)
 
             f.write(code + "\n")
+
+        if i % 10000 == 0:
+            print(f"Generated {i} codes so far...")
 
 # Now use COPY to bulk load the data into PostgreSQL
 cursor = pgconn.cursor()
