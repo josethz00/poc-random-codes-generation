@@ -1,5 +1,6 @@
 import time
 import psycopg2
+import openpyxl
 import redis
 from generate_codes import generate_code
 
@@ -26,6 +27,10 @@ def flush_to_file(file_obj, buffer):
     file_obj.writelines(buffer)
     buffer.clear()
 
+filename_xlsx = "codes_to_insert.xlsx"
+wb = openpyxl.Workbook()
+ws = wb.active
+
 if not existing_codes:
     cursor = pgconn.cursor()
     cursor.execute("SELECT code FROM codes")
@@ -44,6 +49,7 @@ with open(filename, "w") as f:
         existing_codes.add(code)
         codes_batch.add(code)
         file_buffer.append(code + "\n")
+        ws.append([code])
 
         if len(file_buffer) >= BATCH_SIZE:
             flush_to_file(f, file_buffer)
@@ -61,6 +67,7 @@ with open(filename, "w") as f:
         flush_to_file(f, file_buffer)
 
 redisconn.delete("codes")
+wb.save(filename_xlsx)
 
 cursor = pgconn.cursor()
 with open(filename, "r") as f:

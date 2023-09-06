@@ -7,4 +7,3 @@ def generate_code(batch_size=1):
     letters_part = ''.join(random.choices(string.ascii_uppercase, k=3))
     
     return number_part + letters_part
-
