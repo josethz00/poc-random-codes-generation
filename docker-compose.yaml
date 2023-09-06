@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  codesdb:
+    build:
+      context: config/docker/postgres/
+      dockerfile: Dockerfile.dev
+    networks:
+      - user-network
+    container_name: codes-db-container
+    volumes:
+      - ./db.sql:/docker-entrypoint-initdb.d/scripts.sql
+    environment:
+      POSTGRES_USER: codes-db
+      POSTGRES_PASSWORD: codes-db
+      POSTGRES_DB: codes-db
+    ports:
+      - '6492:5432'
+    restart: unless-stopped
+    healthcheck:
+      test: [ 'CMD-SHELL', 'pg_isready -U codes-db' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rediscodes:
+    image: redis:alpine
+    ports:
+      - '6479:6379'
+    networks:
+      - user-network
+    container_name: redis-codes-container
+
+networks:
+  user-network:
+    driver: bridge
