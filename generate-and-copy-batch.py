@@ -31,13 +31,13 @@ filename_xlsx = "codes_to_insert.xlsx"
 wb = openpyxl.Workbook()
 ws = wb.active
 
-if not existing_codes:
-    cursor = pgconn.cursor()
-    cursor.execute("SELECT code FROM codes")
-    codes_from_db = {row[0] for row in cursor.fetchall()}
-    redisconn.sadd("codes", *codes_from_db)
-    existing_codes.update(codes_from_db)
-    cursor.close()
+
+cursor = pgconn.cursor()
+cursor.execute("SELECT code FROM codes")
+codes_from_db = {row[0] for row in cursor.fetchall()}
+redisconn.sadd("codes", *codes_from_db)
+existing_codes.update(codes_from_db)
+cursor.close()
 
 with open(filename, "w") as f:
     for i in range(desired_codes_amount):
@@ -66,7 +66,6 @@ with open(filename, "w") as f:
     if file_buffer:
         flush_to_file(f, file_buffer)
 
-redisconn.delete("codes")
 wb.save(filename_xlsx)
 
 cursor = pgconn.cursor()
