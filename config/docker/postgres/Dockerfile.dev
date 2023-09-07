@@ -2,10 +2,13 @@ FROM postgres:latest
 
 RUN apt-get update && apt-get install -y wget build-essential postgresql-server-dev-all git
 
-RUN apt-get install -y libpam0g-dev libkrb5-dev
+# Install missing libraries
+RUN apt-get install -y libpam0g-dev libkrb5-dev libselinux1-dev zlib1g-dev liblz4-dev libreadline-dev libzstd-dev
 
 WORKDIR /tmp
 
-RUN git clone https://github.com/ossc-db/pg_bulkload
+RUN git clone https://github.com/ossc-db/pg_bulkload.git
+
+WORKDIR /tmp/pg_bulkload
 
 RUN make && make install
