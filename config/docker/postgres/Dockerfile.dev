@@ -1,6 +1,6 @@
 FROM postgres:latest
 
-RUN apt-get update && apt-get install -y wget build-essential postgresql-server-dev-all
+RUN apt-get update && apt-get install -y wget build-essential postgresql-server-dev-all git
 
 RUN apt-get install -y libpam0g-dev libkrb5-dev
 

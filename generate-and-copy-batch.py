@@ -15,7 +15,7 @@ desired_codes_amount = int(input("How many codes do you want to generate?  "))
 
 start_time = time.time()
 
-filename = "codes_to_insert.txt"
+filename = "codes_to_insert.csv"
 
 existing_codes = set(redisconn.smembers("codes"))
 
@@ -48,7 +48,7 @@ with open(filename, "w") as f:
 
         existing_codes.add(code)
         codes_batch.add(code)
-        file_buffer.append(code + "\n")
+        file_buffer.append(code + ",")
         ws.append([code])
 
         if len(file_buffer) >= BATCH_SIZE:
