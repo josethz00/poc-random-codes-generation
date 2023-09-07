@@ -10,6 +10,7 @@ services:
     container_name: codes-db-container
     volumes:
       - ./db.sql:/docker-entrypoint-initdb.d/scripts.sql
+      - ./data:/data
     environment:
       POSTGRES_USER: codes-db
       POSTGRES_PASSWORD: codes-db
