@@ -1,4 +1,5 @@
 import time
+import threading
 import psycopg2
 import openpyxl
 import redis
@@ -15,7 +16,7 @@ desired_codes_amount = int(input("How many codes do you want to generate?  "))
 
 start_time = time.time()
 
-filename = "codes_to_insert.csv"
+filename = "codes_to_insert.txt"
 
 existing_codes = set(redisconn.smembers("codes"))
 
@@ -31,12 +32,16 @@ filename_xlsx = "codes_to_insert.xlsx"
 wb = openpyxl.Workbook()
 ws = wb.active
 
+def save_xlsx():
+    wb.save(filename_xlsx)
+    print("Saved xlsx file")
 
 cursor = pgconn.cursor()
 cursor.execute("SELECT code FROM codes")
 codes_from_db = {row[0] for row in cursor.fetchall()}
-redisconn.sadd("codes", *codes_from_db)
-existing_codes.update(codes_from_db)
+if codes_from_db:
+    redisconn.sadd("codes", *codes_from_db)
+    existing_codes.update(codes_from_db)
 cursor.close()
 
 with open(filename, "w") as f:
@@ -48,7 +53,7 @@ with open(filename, "w") as f:
 
         existing_codes.add(code)
         codes_batch.add(code)
-        file_buffer.append(code + ",")
+        file_buffer.append(code + "\n")
         ws.append([code])
 
         if len(file_buffer) >= BATCH_SIZE:
@@ -66,7 +71,7 @@ with open(filename, "w") as f:
     if file_buffer:
         flush_to_file(f, file_buffer)
 
-wb.save(filename_xlsx)
+save_xlsx_thread = threading.Thread(target=save_xlsx)
 
 cursor = pgconn.cursor()
 with open(filename, "r") as f:
