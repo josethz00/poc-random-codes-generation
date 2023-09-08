@@ -11,7 +11,7 @@ import logging
 import time
 
 # Create the connection pool
-db_pool = psycopg2.pool.SimpleConnectionPool(1, 5,
+db_pool = psycopg2.pool.SimpleConnectionPool(1, 4,
                                              database="codes-db",
                                              host="localhost",
                                              user="codes-db",
@@ -29,7 +29,8 @@ filename = "codes_to_insert.txt"
 existing_codes = set(redisconn.smembers("codes"))
 
 BATCH_SIZE = 1600
-codes_batch = set()
+codes_batch_set = set()
+codes_batch_list = []
 file_buffer = []
 
 def flush_to_file(file_obj, buffer):
@@ -61,25 +62,29 @@ with open(filename, "w") as f:
     for i in range(desired_codes_amount):
         code = generate_code()
 
-        while code in existing_codes or code in codes_batch:
+        while code in existing_codes or code in codes_batch_set:
             code = generate_code()
 
         existing_codes.add(code)
-        codes_batch.add(code)
+        codes_batch_set.add(code)
+        codes_batch_list.append(code)
         file_buffer.append(code + "\n")
-        ws.append([code])
 
         if len(file_buffer) >= BATCH_SIZE:
             flush_to_file(f, file_buffer)
-            redisconn.sadd("codes", *codes_batch)
-            codes_batch.clear()
+            ws.append(codes_batch_list)
+            redisconn.sadd("codes", *codes_batch_set)
+            codes_batch_set.clear()
+            codes_batch_list.clear()
 
         if i % 10000 == 0:
             print(f"Generated {i} codes so far...")
 
-    if codes_batch:
-        redisconn.sadd("codes", *codes_batch)
-        codes_batch.clear()
+    if codes_batch_set:
+        redisconn.sadd("codes", *codes_batch_set)
+        ws.append(codes_batch_list)
+        codes_batch_set.clear()
+        codes_batch_list.clear()
 
     if file_buffer:
         flush_to_file(f, file_buffer)
