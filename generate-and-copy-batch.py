@@ -11,7 +11,7 @@ import logging
 import time
 
 # Create the connection pool
-db_pool = psycopg2.pool.SimpleConnectionPool(1, 4,
+db_pool = psycopg2.pool.ThreadedConnectionPool(1, 4,
                                              database="codes-db",
                                              host="localhost",
                                              user="codes-db",
