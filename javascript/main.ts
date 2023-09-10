@@ -20,8 +20,7 @@ const startTime: number = Date.now();
 const existingCodes: string[] = await redisConn.sMembers('codes');
 const BATCH_SIZE = 1600;
 const codesBatchSet: Set<string> = new Set();
-const codesBatchTxtArray: string[] = [];
-const codesBatchCsvArray: string[] = [];
+const codesBatchArray: string[] = [];
 const filenameCsv = "codes_to_insert.csv";
 
 function flushToCsvFile(fileObj: BunFile, buffer: string[]) {
@@ -42,4 +41,13 @@ if (codesFromDb.length > 0) {
         redisConn.sAdd('codes', code);
         existingCodes.push(code)
     });
+}
+
+const csvFile = Bun.file(filenameCsv);
+
+for (let i = 0; i < desiredCodesAmount; i++) {
+    let code = '';
+    do {
+        code = generateCode();
+    } while (existingCodes.includes(code) || codesBatchSet.has(code));
 }
