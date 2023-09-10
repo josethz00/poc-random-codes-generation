@@ -7,29 +7,22 @@ const dbPool = new pg.Pool({
     port: 6492,
     password: 'codes-db',
     user: 'codes-db',
-    database: 'codes-db'
+    database: 'codes-db',
+    max: 4,
 });
+
 const redisConn = redis.createClient({
     url: 'redis://localhost:6479'
 });
 
 const desiredCodesAmount: number = console.write('How many codes do you want to generate?   ');
 const startTime: number = Date.now();
-const filename = "codes_to_insert.txt";
 const existingCodes: string[] = await redisConn.sMembers('codes');
 const BATCH_SIZE = 1600;
 const codesBatchSet: Set<string> = new Set();
 const codesBatchTxtArray: string[] = [];
 const codesBatchCsvArray: string[] = [];
 const filenameCsv = "codes_to_insert.csv";
-
-function flushToTxtFile(fileObj: BunFile, buffer: string[]) {
-    const writer = fileObj.writer();
-    writer.write(buffer.join('\n'));
-    writer.flush();
-    writer.end();
-    buffer.length = 0;
-}
 
 function flushToCsvFile(fileObj: BunFile, buffer: string[]) {
     const writer = fileObj.writer();
