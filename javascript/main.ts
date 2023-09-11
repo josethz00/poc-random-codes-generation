@@ -6,6 +6,7 @@ import readline from 'readline';
 import { spawn } from 'child_process';
 import { Worker } from 'worker_threads';
 import { generateCode } from './generate-code';
+import { runWorker } from 'run-worker';
 
 const dbPool = new pg.Pool({
     host: 'localhost',
@@ -98,10 +99,8 @@ const main = async () => {
     spawn('split', ['-l', String(Math.floor(desiredCodesAmount / 5)), filenameCsv, 'outcodes_']);
 
     const filePrefixes = ['aa', 'ab', 'ac', 'ad', 'ae'];
-    filePrefixes.forEach(prefix => {
-        const worker = new Worker(path.join(__dirname, 'worker.js'));
-        worker.postMessage(`outcodes_${prefix}`);
-    });
+    const workerPromises = filePrefixes.map(prefix => runWorker(prefix));
+    await Promise.all(workerPromises);
 
     const endTime: number = Date.now();
 
