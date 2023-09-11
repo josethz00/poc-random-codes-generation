@@ -1,10 +1,8 @@
 import * as fs from 'fs';
 import * as pg from 'pg';
 import * as redis from 'redis';
-import path from 'path';
 import readline from 'readline';
 import { spawn } from 'child_process';
-import { Worker } from 'worker_threads';
 import { generateCode } from './generate-code';
 import { runWorker } from './run-worker';
 
