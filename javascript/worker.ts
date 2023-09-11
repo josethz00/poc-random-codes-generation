@@ -18,7 +18,6 @@ parentPort?.on('message', async (filename) => {
     const fileStream = fs.createReadStream(filename);
     const copyPsqlStream = pgConn.query(copyFrom(`COPY codes(code) FROM STDIN WITH (FORMAT CSV)`));
     await pipeline(fileStream, copyPsqlStream);
-    console.log('writeeee')
     parentPort?.postMessage('done');
   } catch (err) {
     console.log(err)
