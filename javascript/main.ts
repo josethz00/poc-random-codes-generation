@@ -4,6 +4,7 @@ import * as redis from 'redis';
 import path from 'path';
 import readline from 'readline';
 import { spawn } from 'child_process';
+import { Worker } from 'worker_threads';
 import { generateCode } from './generate-code';
 
 const dbPool = new pg.Pool({
@@ -102,7 +103,7 @@ const main = async () => {
 
     const filePrefixes = [...Array(5).keys()].map(num => String.fromCharCode(97 + num));  // ['a', 'b', 'c', 'd', 'e']
     filePrefixes.forEach(prefix => {
-        const worker = new Worker(path.join(__dirname, 'worker.ts'));
+        const worker = new Worker(path.join(__dirname, 'worker.js'));
         worker.postMessage(`outcodes_${prefix}`);
     });
 
