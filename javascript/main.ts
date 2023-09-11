@@ -6,7 +6,7 @@ import readline from 'readline';
 import { spawn } from 'child_process';
 import { Worker } from 'worker_threads';
 import { generateCode } from './generate-code';
-import { runWorker } from 'run-worker';
+import { runWorker } from './run-worker';
 
 const dbPool = new pg.Pool({
     host: 'localhost',
