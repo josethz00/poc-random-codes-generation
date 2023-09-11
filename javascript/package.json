@@ -1,16 +1,22 @@
 {
   "name": "javascript",
   "module": "main.ts",
-  "type": "module",
+  "scripts": {
+    "start": "node dist/main.js",
+    "build": "rm -rf dist && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "devDependencies": {
     "@types/pg": "^8.10.2",
-    "bun-types": "latest"
+    "@types/pg-copy-streams": "^1.2.2",
+    "@types/redis": "^4.0.11"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
     "pg": "^8.11.3",
+    "pg-copy-streams": "^6.0.6",
     "redis": "^4.6.8"
   }
 }

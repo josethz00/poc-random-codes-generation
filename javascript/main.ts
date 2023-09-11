@@ -43,8 +43,10 @@ const main = async () => {
     const filenameCsv = "codes_to_insert.csv";
     const csvFileBuffer: string[] = [];
 
+    fs.writeFileSync(filenameCsv, '');
+
     function flushToCsvFile(fileObj: string, buffer: string[]): void {
-        fs.appendFileSync(fileObj, buffer.join('\n'));
+        fs.appendFileSync(fileObj, buffer.join(''));
         buffer.length = 0;
     }
 
@@ -69,7 +71,7 @@ const main = async () => {
         codesBatchSet.add(code);
         codesBatchArray.push(code);
         existingCodes.add(code);
-        csvFileBuffer.push("," + code + '\n');
+        csvFileBuffer.push("," + code + "\n");
 
         if (csvFileBuffer.length >= BATCH_SIZE) {
             flushToCsvFile(filenameCsv, csvFileBuffer);
@@ -95,13 +97,7 @@ const main = async () => {
 
     spawn('split', ['-l', String(Math.floor(desiredCodesAmount / 5)), filenameCsv, 'outcodes_']);
 
-    async function copyToDb(filename: string) {
-        const dbConn = await dbPool.connect();
-        dbConn.copyFrom(`COPY codes FROM '${filename}' DELIMITER ',' CSV HEADER`);
-        dbConn.release();
-    }
-
-    const filePrefixes = [...Array(5).keys()].map(num => String.fromCharCode(97 + num));  // ['a', 'b', 'c', 'd', 'e']
+    const filePrefixes = ['aa', 'ab', 'ac', 'ad', 'ae'];
     filePrefixes.forEach(prefix => {
         const worker = new Worker(path.join(__dirname, 'worker.js'));
         worker.postMessage(`outcodes_${prefix}`);
