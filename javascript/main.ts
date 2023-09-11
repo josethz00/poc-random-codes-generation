@@ -71,7 +71,7 @@ const main = async () => {
         codesBatchSet.add(code);
         codesBatchArray.push(code);
         existingCodes.add(code);
-        csvFileBuffer.push("," + code + "\n");
+        csvFileBuffer.push(code + "\n");
 
         if (csvFileBuffer.length >= BATCH_SIZE) {
             flushToCsvFile(filenameCsv, csvFileBuffer);
