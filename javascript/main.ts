@@ -2,9 +2,9 @@ import * as fs from 'fs';
 import * as pg from 'pg';
 import * as redis from 'redis';
 import readline from 'readline';
-import { spawn } from 'child_process';
+import { fork } from 'child_process';
 import { generateCode } from './generate-code';
-import { runWorker } from './run-worker';
+import path from 'path';
 
 const dbPool = new pg.Pool({
     host: 'localhost',
@@ -93,15 +93,20 @@ const main = async () => {
         flushToCsvFile(filenameCsv, csvFileBuffer);
     }
 
-    spawn('split', ['-l', String(Math.floor(desiredCodesAmount / 5)), filenameCsv, 'outcodes_']);
-
-    const filePrefixes = ['aa', 'ab', 'ac', 'ad', 'ae'];
-    const workerPromises = filePrefixes.map(prefix => runWorker(prefix));
-    await Promise.all(workerPromises);
-
     const endTime: number = Date.now();
 
     console.log(`Time elapsed: ${(endTime - startTime) / 1000} seconds.`);
+    console.log("Current directory:", process.cwd());
+
+    const child = fork(path.join(__dirname, 'bgtask.js'));
+    child.send({ filenameCsv, desiredCodesAmount });
+
+    child.on('message', (message) => {
+        if (message === 'done') {
+            console.log("Background tasks completed.");
+            child.kill();
+        }
+    });
 };
 
 main().catch(err => console.error(err));
